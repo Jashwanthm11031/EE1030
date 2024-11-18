@@ -1,0 +1,161 @@
+%hello world
+\let\negmedspace\undefined
+\let\negthickspace\undefined
+\documentclass[journal,12pt,onecolumn]{IEEEtran}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{txfonts}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{gensymb}
+\usepackage{comment}
+\usepackage[breaklinks=true]{hyperref}
+\usepackage{tkz-euclide} 
+\usepackage{listings}
+\usepackage{gvv}                                        
+%\def\inputGnumericTable{}                                 
+\usepackage[latin1]{inputenc}                                
+\usepackage{color}                                            
+\usepackage{array}                                            
+\usepackage{longtable}                                       
+\usepackage{calc}                                             
+\usepackage{multirow}                                         
+\usepackage{hhline}                                           
+\usepackage{ifthen}                                           
+\usepackage{lscape}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{float}
+\usepackage{multicol}
+\usepackage{amsmath}
+
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{problem}{Problem}
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{example}{Example}[section]
+\newtheorem{definition}[problem]{Definition}
+\newcommand{\BEQA}{\begin{eqnarray}}
+\newcommand{\EEQA}{\end{eqnarray}}
+\newcommand{\define}{\stackrel{\triangle}{=}}
+\theoremstyle{remark}
+\newtheorem{rem}{Remark}
+
+% Marks the beginning of the document
+\begin{document}
+\bibliographystyle{IEEEtran}
+\vspace{3cm}
+
+\title{Eigenvalue Calculation}
+\author{EE24BTECH11031-Jashwanth}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+Eigenvalues are one of the most significant concepts in linear algebra and have widespread applications in diverse fields such as physics, engineering, machine learning, and numerical analysis. They provide critical insights into the behavior of systems modeled by matrices, such as stability, vibration modes, or principal directions in data.
+
+Given a square matrix $\vec{A}$, eigenvalues $\lambda$ are scalars that satisfy:
+$A \vec{v} = \lambda \vec{v}$,
+
+where $\vec{v} \neq \vec{0}$ is the corresponding eigenvector. This report focuses on implementing and explaining a numerical approach to compute the eigenvalues of $\vec{A}$ using the QR decomposition method.
+
+\section{Eigenvalues}
+To find the eigenvalues of a matrix $\vec{A}$, the characteristic polynomial $\det{A - \lambda I} = 0$ is solved. However, solving this polynomial analytically becomes computationally challenging for matrices larger than $4 \times 4$ because there are no general formulas for roots of polynomials of degree greater than four.
+
+Numerical methods like the QR decomposition provide a more efficient and stable alternative. These methods iteratively refine approximations to the eigenvalues by leveraging matrix factorization techniques.
+
+\section{QR Decomposition}
+QR decomposition is a technique to factorize a matrix $\vec{A}$ into the product of:
+\begin{itemize}
+	\item $\vec{Q}$: An orthogonal (or unitary) matrix, where $\vec{Q}^T \vec{Q} = I$, and
+	\item $\vec{R}$: An upper triangular matrix.
+\end{itemize}
+For a square matrix $\vec{A}$, this decomposition satisfies:
+$$\vec{A} = \vec{Q}R$$.
+The QR method for eigenvalue calculation is based on the idea that if $\vec{A}$ is repeatedly decomposed into $\vec{QR}$ and then reassembled as $\vec{RQ}$, the resulting sequence of matrices will converge to an upper triangular matrix, where the diagonal elements are the eigenvalues of $\vec{A}$.
+
+\section{QR Algorithm for Eigenvalues}
+
+We start with the given matrix $\vec{A}$. This matrix is subjected to iterative transformations to produce sequences of $\vec{Q}$ and $\vec{R}$ matrices.
+
+\subsection{1. QR Decomposition}
+The matrix $\vec{A}$ is decomposed into $\vec{Q}$ and $\vec{R}$ using the Gram-Schmidt orthogonalization process:
+\begin{itemize}
+	\item The columns of $\vec{A}$ are orthogonalized to construct $\vec{Q}$, ensuring each column is perpendicular to the others.
+	\item The projections of $\vec{A}$'s columns onto $\vec{Q}$'s columns yield $\vec{R}$, which is upper triangular.
+\end{itemize}
+
+\subsection{2. Matrix Update}
+Using the decomposition $\vec{A} = \vec{QR}$, the matrix is updated as:
+$$\vec{A}' = \vec{RQ}$$.
+This step effectively shifts eigenvalue information progressively closer to the diagonal.
+
+\subsection{3. Iteration}
+Steps 2 and 3 are repeated iteratively until $\vec{A}$ converges to a quasi-diagonal matrix. Convergence is typically determined when the off-diagonal elements are sufficiently close to zero (below a predefined tolerance, e.g., $10^{-10}$ ).
+
+\subsection{4. Extraction of Eigenvalues}
+Once the matrix has converged, the eigenvalues of $\vec{A}$ are found along the diagonal of the resulting matrix.
+
+\section{Key Components in the Code}
+
+The provided implementation includes the following critical components:
+
+\subsection{1. Matrix Multiplication}
+This function multiplies two matrices $\vec{A}$ and $\vec{B}$ to produce their product $\vec{C}$. It is used in reconstructing $\vec{A}' = \vec{RQ}$ during each iteration.
+
+\subsection{2. Dot Product}
+The dot product function computes the projection of one column of the matrix onto another. This is essential for calculating the entries of $\vec{R}$ and ensuring orthogonalization during the Gram-Schmidt process.
+
+\subsection{3. QR Decomposition}
+The QR decomposition function performs the Gram-Schmidt process:
+\begin{itemize}
+	\item \textbf{Orthogonalization}: Subtracts projections of a column onto previous $\vec{Q}$ -columns to produce orthogonal vectors.
+    \item \textbf{Normalization}: Scales the orthogonal vectors to unit length.
+\end{itemize}
+
+\subsection{4. Iterative Update}
+In each iteration, the matrix $\vec{A}$ is decomposed into $\vec{Q}$ and $\vec{R}$, and then recombined as $\vec{RQ}$. The process continues until $\vec{A}$ converges to a quasi-diagonal form.
+
+\section{Advantages of the QR Method}
+
+\subsection{1. Numerical Stability}
+The QR algorithm avoids explicit computation of the characteristic polynomial, reducing the numerical instability associated with root-finding algorithms for higher-degree polynomials.
+
+\subsection{2. Efficiency}
+The QR method is computationally efficient for dense matrices, particularly when combined with techniques like the Hessenberg reduction for preprocessing $\vec{A}$.
+
+\subsection{3. Generality}
+This approach can handle both symmetric and non-symmetric matrices. For symmetric matrices, the algorithm converges more rapidly, and the resulting eigenvalues are real.
+
+\subsection{4. Practical Utility}
+The QR method is widely applicable in solving problems in signal processing, data compression (e.g., Principal Component Analysis), and structural analysis.
+
+\section{Limitations}
+
+While the QR method is robust, it has some challenges:
+\begin{itemize}
+    \item \textbf{Convergence Rate}: The method may require many iterations to converge for certain matrices, especially those with close or repeated eigenvalues.
+    \item \textbf{Computational Cost}: Each iteration involves matrix multiplications and QR decompositions, which can be costly for very large matrices.
+    \item \textbf{Preprocessing Requirements}: For large or sparse matrices, preprocessing steps like Hessenberg reduction are often required to improve efficiency.
+\end{itemize}
+
+\section{Conclusion}
+
+The QR decomposition method is a powerful and practical technique for calculating eigenvalues. It relies on the iterative refinement of a matrix to a diagonal form by leveraging orthogonal transformations. The method is robust, numerically stable, and widely applicable across scientific and engineering domains. 
+
+The provided code uses the Gram-Schmidt process for QR decomposition and iteratively applies the $\vec{QR}$ method to compute eigenvalues. While efficient for moderate-sized matrices, optimizing for large-scale problems may involve further refinements, such as introducing shift strategies or leveraging sparsity.
+
+This implementation serves as an excellent introduction to eigenvalue computation using numerical methods and highlights the utility of linear algebra in computational problem-solving.
+
+\end{document}
+
